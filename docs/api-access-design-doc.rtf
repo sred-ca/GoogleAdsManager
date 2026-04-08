@@ -1,0 +1,95 @@
+{\rtf1\ansi\deff0
+{\fonttbl{\f0\froman Times New Roman;}{\f1\fswiss Arial;}}
+{\colortbl;\red0\green0\blue0;\red68\green68\blue68;}
+
+\f1\fs28\b Google Ads Manager Plugin \emdash Design Documentation\b0\fs20\par
+\f1\fs18\cf2 Prepared by: Jude | SRED.ca \par
+Date: April 2026\cf1\par
+\par
+
+\fs22\b 1. Tool Overview\b0\fs20\par
+\par
+The Google Ads Manager Plugin is an internal tool that provides programmatic access to Google Ads account data and management functions via the Google Ads API. It is used exclusively to manage a single Google Ads account owned and operated by SRED.ca.\par
+\par
+The tool is built on the Google Ads Python client library and exposes campaign data, performance reporting, and account management functions as structured API calls. It is not a public-facing product \emdash it is internal tooling for a single organization.\par
+\par
+
+\fs22\b 2. Purpose and Use Cases\b0\fs20\par
+\par
+The tool addresses the following internal use cases:\par
+\par
+{\pard\li360
+\bullet\tab\b Performance Monitoring:\b0  Automated daily and weekly reporting on campaign spend, clicks, impressions, conversions, CPA, and ROAS.\par
+\bullet\tab\b Budget Management:\b0  Tracking actual spend against monthly budget targets, pacing analysis, and overspend alerts.\par
+\bullet\tab\b Keyword Management:\b0  Analyzing search term reports to identify negative keyword opportunities and reviewing keyword-level performance.\par
+\bullet\tab\b Campaign Optimization:\b0  Reviewing bid performance and ad copy effectiveness to support manual optimization decisions.\par
+\pard}\par
+\par
+
+\fs22\b 3. API Features Used\b0\fs20\par
+\par
+The tool will use the following Google Ads API capabilities:\par
+\par
+{\pard\li360
+\bullet\tab\b GoogleAdsService (Search/SearchStream):\b0  For executing GAQL queries to retrieve campaign, ad group, ad, keyword, and performance data.\par
+\bullet\tab\b CampaignService:\b0  To read campaign status, settings, and budgets. Limited write operations to update campaign status (pause/enable) with explicit operator confirmation required.\par
+\bullet\tab\b BudgetService:\b0  To read and update shared and campaign-level daily budgets.\par
+\bullet\tab\b KeywordPlanService:\b0  For keyword research and volume estimates.\par
+\bullet\tab\b AdGroupAdService:\b0  To read ad copy, status, and performance metrics.\par
+\bullet\tab\b CustomerService:\b0  To list accessible accounts and retrieve account-level metadata.\par
+\pard}\par
+\par
+
+\fs22\b 4. Architecture\b0\fs20\par
+\par
+\b 4.1 Components\b0\par
+\par
+{\pard\li360
+\b MCP Server (Python):\b0  A local Python process that wraps the Google Ads API and exposes read/write operations as structured tool calls. Built on the Model Context Protocol (MCP) standard.\par
+\par
+\b Credential Storage:\b0  OAuth 2.0 credentials are stored in a local \f0 google-ads.yaml\f1  configuration file on the operator\rquote s machine. No credentials are transmitted to or stored on third-party servers.\par
+\par
+\b Operator Interface:\b0  The tool operator interacts via Claude (Anthropic\rquote s AI assistant), which calls the MCP server tools to retrieve data and execute approved actions. All write operations require explicit operator confirmation before execution.\par
+\pard}\par
+\par
+\b 4.2 Data Flow\b0\par
+\par
+{\pard\li360
+1.\tab Operator issues a natural-language request (e.g., \ldblquote Show me this week\rquote s campaign performance\rdblquote ).\par
+2.\tab The MCP server translates this into a GAQL query or API call.\par
+3.\tab Results are returned to the operator in a structured report.\par
+4.\tab For any write operations, the operator reviews a preview before confirming execution.\par
+\pard}\par
+\par
+
+\fs22\b 5. Data Handling and Security\b0\fs20\par
+\par
+{\pard\li360
+\bullet\tab All API calls are made from the operator\rquote s local machine directly to Google\rquote s API endpoints.\par
+\bullet\tab No campaign data is stored externally or transmitted to third-party services.\par
+\bullet\tab OAuth 2.0 tokens are stored locally and refreshed automatically using Google\rquote s standard token refresh flow.\par
+\bullet\tab Write operations (budget changes, campaign pauses) require explicit two-step confirmation before execution.\par
+\bullet\tab A dry-run mode is used during development and testing to prevent unintended changes.\par
+\bullet\tab All API actions are logged locally with timestamps for audit purposes.\par
+\pard}\par
+\par
+
+\fs22\b 6. Scope and Users\b0\fs20\par
+\par
+{\pard\li360
+\bullet\tab\b Single account:\b0  The tool manages one Google Ads account (SRED.ca). No multi-account or MCC access is required.\par
+\bullet\tab\b Single operator:\b0  Used exclusively by the account owner (Jude, SRED.ca).\par
+\bullet\tab\b Not a public product:\b0  This tool is internal business tooling, not distributed to third parties or offered as a service.\par
+\pard}\par
+\par
+
+\fs22\b 7. API Version\b0\fs20\par
+\par
+The tool targets Google Ads API v23.x using the official \f0 google-ads\f1  Python client library (v24+), and will be updated as new API versions are released.\par
+\par
+
+\fs22\b 8. Contact\b0\fs20\par
+\par
+Organization: SRED.ca\par
+Use: Internal campaign management tooling\par
+}\par

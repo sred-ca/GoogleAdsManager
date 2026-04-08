@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "adloop": {
+      "command": "python",
+      "args": ["-m", "adloop"],
+      "description": "AdLoop MCP server — Google Ads API v23.x + GA4 integration with safety guardrails"
+    }
+  }
+}
