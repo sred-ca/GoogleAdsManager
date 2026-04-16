@@ -466,8 +466,18 @@ def run_engine(data, rules_config, outcomes):
     active_outcome_refs = {o.get("best_practice_ref") for o in outcomes.get("outcomes", [])
                           if o.get("final_verdict") is None}
 
+    # Detect Smart Bidding — bid strategy type 10 = MAXIMIZE_CONVERSIONS, 11 = MAXIMIZE_CONVERSION_VALUE, 9 = TARGET_CPA
+    smart_bidding_types = {"9", "10", "11"}
+    uses_smart_bidding = any(
+        str(c.get("bidding_strategy", "")) in smart_bidding_types
+        for c in data.get("this_week", {}).get("campaigns", [])
+    )
+
     for rule in rules:
         if rule["id"] in active_outcome_refs:
+            continue
+
+        if rule["condition"].get("requires_manual_bidding") and uses_smart_bidding:
             continue
 
         scope = rule["condition"]["scope"]

@@ -17,6 +17,7 @@ rules:
     category: bids
     condition:
       scope: keyword
+      requires_manual_bidding: true
       filters:
         - field: cpa
           operator: lt
@@ -33,13 +34,14 @@ rules:
       max_cpc_cad: 25.00
     risk: LOW
     frequency: weekly
-    description: "Keyword converting below target CPA with meaningful volume — increase bid to capture more traffic"
+    description: "Keyword converting below target CPA with meaningful volume — increase bid. SKIP if Smart Bidding active."
 
   - id: BP-002
     name: Lower CPC on expensive keywords
     category: bids
     condition:
       scope: keyword
+      requires_manual_bidding: true
       filters:
         - field: cpa
           operator: gt
@@ -58,7 +60,7 @@ rules:
       min_cpc_cad: 3.00
     risk: LOW
     frequency: weekly
-    description: "Keyword CPA exceeds target by 30%+ for 2+ weeks — reduce bid"
+    description: "Keyword CPA exceeds target by 30%+ for 2+ weeks — reduce bid. SKIP if Smart Bidding active."
 
   - id: BP-003
     name: Increase budget on constrained campaigns
