@@ -13,20 +13,22 @@ Living document updated weekly by the Google Ads Manager plugin.
 ## Current Performance Snapshot
 
 ```yaml
-as_of: 2026-04-15
-data_window: lifetime (Apr 2022 - Apr 2026)
-total_spend_cad: 93104.67
-total_clicks: 7572
-total_impressions: 141282
-total_conversions: 2349.3
-avg_ctr: 0.0536
-avg_cpc_cad: 12.30
-avg_cpa_cad: 39.63
-active_months: 48
-recent_monthly_spend: 3500-4100
-recent_ctr: 0.081-0.088
-recent_cpa: 33-40
-recent_impression_share: 0.33-0.36
+as_of: 2026-04-16
+data_window: week of 2026-04-06 to 2026-04-12
+weekly_spend_cad: 522.60
+weekly_clicks: 56
+weekly_impressions: 687
+weekly_conversions: 12.0
+weekly_true_conversions: 0
+weekly_ctr: 0.0815
+weekly_avg_cpc_cad: 9.33
+weekly_cpa_cad: 43.55
+weekly_true_cpa: null
+impression_share: 0.234
+budget_lost_is: 0.724
+wow_spend_change: -0.058
+wow_cpa_change: +0.414
+wow_conversions_change: -0.333
 ```
 
 ## Campaign Architecture
@@ -72,11 +74,14 @@ SRED.ca targets Canadian tech companies (5-100 employees) with active R&D. Googl
 **[2026-04-15] Initial Baseline:**
 Account has been running since April 2022. Significant spend ramp in Sep-Oct 2025 ($7.7K and $12.2K — investigate). CTR doubled from ~5% (2024) to ~8.5% (2026) — ad copy improvements working. Provocative headlines ("Buying Your Consultant a Boat?", "Stop Overpaying") outperform generic copy on both CTR and CPA. "sr&ed consultant" is the money keyword: $21.5K lifetime, 587 conversions, best CPA. Competitor targeting (infinity sred) is the most efficient strategy but barely funded.
 
+**[2026-04-16] Week of Apr 6-12 Review:**
+Zero real leads this week — all 12 "conversions" are just 2-page visits (au_visited_2_pages). CPA spiked 41% WoW ($30.81 -> $43.55). Impression share dropped to 23.4% (72.4% lost to budget). CTR remains strong at 8.2% (above 8% target). "sred credits" identified as waste term ($25.55, 0 conv) and added as exact match negative. Biggest concern: conversion tracking is fundamentally broken — Google is optimizing toward page visits, not actual leads.
+
 ## Completed Actions
 
 | Date | Action | Rationale | Result |
 |------|--------|-----------|--------|
-| (none yet) | | | |
+| 2026-04-16 | Added "sred credits" as exact negative to Bloom RSA 1 | $25.55 spent, 0 conversions, informational query | Pending — will measure next week |
 
 ## Quarterly Strategy Review Notes
 
