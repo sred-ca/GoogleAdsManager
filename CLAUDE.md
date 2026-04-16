@@ -55,46 +55,44 @@ Google provides an official MCP developer toolkit that executes Python queries a
 | Mutate operations | Max 10,000/request | Batch mutations carefully |
 | AudienceInsights | ~200 requests/day | Rate-limit audience research features |
 
-## Skills Overview
+## Plugin Architecture
 
-### 1. Campaign Monitor (`skills/campaign-monitor/`)
-**Purpose**: Pull performance data, generate reports, flag anomalies.
-**Status**: To build
-**Key capabilities**:
-- Daily/weekly/monthly performance summaries (spend, clicks, conversions, CPA, ROAS)
-- Anomaly detection (spend spikes, conversion drops, CTR changes beyond thresholds)
-- Comparison reporting (this week vs last week, this month vs last month)
-- Campaign health dashboard output (formatted for Cowork display)
+One unified skill (`weekly-ads-manager`) with three components:
 
-### 2. Campaign Optimizer (`skills/campaign-optimizer/`)
-**Purpose**: Create campaigns, adjust bids, pause/enable ads, A/B test copy.
-**Status**: To build
-**Key capabilities**:
-- Create new campaigns from a brief (audience, budget, goals → campaign structure)
-- Bid adjustment recommendations based on performance data
-- Ad copy A/B testing setup and winner selection
-- Pause underperforming ads, enable paused ads based on rules
-- Quality Score analysis and improvement suggestions
+### Component 1: Data Pull (`scripts/pull_weekly_data.py`)
+**Status**: LIVE — tested against live account
+**Interpreter:** `/Users/judebrown/.local/share/uv/tools/google-ads-mcp/bin/python3.12`
+- 11 GAQL queries covering campaigns, keywords, search terms, ads, hourly/daily/device/geo, negatives, conversion actions
+- Outputs single JSON to `outputs/weekly-data/week-of-YYYY-MM-DD.json`
+- Date logic: prior full calendar week (Mon 00:00 to Sun 23:59 PT)
 
-### 3. Budget Manager (`skills/budget-manager/`)
-**Purpose**: Track spend against budget, alert on overspend, adjust budgets.
-**Status**: To build
-**Key capabilities**:
-- Daily budget pacing (are we on track to hit monthly budget?)
-- Overspend alerts with automatic pause recommendations
-- Budget reallocation between campaigns based on performance
-- Monthly budget forecasting based on current trends
-- Budget vs. actual reporting
+### Component 2: Report Generator (`scripts/generate_ads_report.py`)
+**Status**: LIVE — branded PDF with benchmark comparisons
+**Interpreter:** `/usr/bin/python3` (system Python with reportlab)
+- Uses SREDDoc module for SRED.ca branding (cross-project import)
+- Benchmark bar charts comparing SRED.ca vs B2B industry averages (WordStream 2025)
+- Legend, metric explanations, WoW comparison, campaign/keyword/ad/time analysis
+- Conversion quality audit with "True CPA" calculation
+- Recommendations section with priority rankings
 
-### 4. Keyword Manager (`skills/keyword-manager/`)
-**Purpose**: Research keywords, manage negative keywords, adjust audience targeting.
-**Status**: To build
-**Key capabilities**:
-- Keyword research using Keyword Planner API
-- Search term report analysis → negative keyword recommendations
-- Keyword performance analysis (which keywords drive conversions vs. waste spend)
-- Audience targeting suggestions based on conversion data
-- Competitor keyword gap analysis (where possible via API)
+### Component 3: Analysis + Actions (orchestrated by SKILL.md)
+**Status**: LIVE — decision trees defined
+- Auto-executes: negative keywords (safe, free), ad schedule adjustments (after 2+ week patterns)
+- Recommends with confirmation: budget changes, bid adjustments, ad copy, keyword additions
+- Updates living strategy doc and action log
+
+### Skill Orchestrator (`skills/weekly-ads-manager/SKILL.md`)
+**Status**: LIVE
+- 9-step workflow: read context → pull data → analyze → auto-actions → recommendations → update strategy → generate PDF → deliver via Gmail → log
+- Runs Sunday 10pm PT via scheduled task
+- Replaces previous consultant (alden@plusroi.com / PlusROI)
+
+### Account Details
+- **Account:** Bloom Technical Advisors (CID: `5552474733`) under Manager `5122627517`
+- **Currency:** CAD | **Timezone:** America/Vancouver
+- **OAuth:** Application Default Credentials at `~/.config/gcloud/application_default_credentials.json`
+- **Developer Token:** In `.env` (git-ignored)
+- **Google Cloud Project:** SREDHERO (Project ID: `sredhero`)
 
 ## Related Skills
 
