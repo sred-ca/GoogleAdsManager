@@ -1,8 +1,11 @@
 {
   "mcpServers": {
-    "adloop": {
-      "command": "python",
-      "args": ["-X", "utf8", "-m", "adloop"]
+    "google-ads-mcp": {
+      "command": "/Users/judebrown/.local/bin/google-ads-mcp",
+      "env": {
+        "GOOGLE_ADS_DEVELOPER_TOKEN": "K-utWwcjTvDjswCXX_VfPA",
+        "GOOGLE_CLOUD_PROJECT": "sredhero"
+      }
     }
   }
 }
