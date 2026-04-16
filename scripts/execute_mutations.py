@@ -51,8 +51,8 @@ def execute_budget_change(client, proposal, dry_run=True):
 
     ga = client.get_service("GoogleAdsService")
     budget_query = f"""
-        SELECT campaign_budget.resource_name, campaign_budget.amount_micros
-        FROM campaign_budget
+        SELECT campaign.id, campaign_budget.resource_name, campaign_budget.amount_micros
+        FROM campaign
         WHERE campaign.id = {params['campaign_id']}
     """
     rows = list(ga.search(customer_id=CID, query=budget_query))
@@ -65,8 +65,8 @@ def execute_budget_change(client, proposal, dry_run=True):
     budget = operation.update
     budget.resource_name = budget_resource
     budget.amount_micros = proposed
-    from google.api_core import protobuf_helpers
-    client.copy_from(operation.update_mask, protobuf_helpers.field_mask(None, budget._pb))
+    from google.protobuf import field_mask_pb2
+    client.copy_from(operation.update_mask, field_mask_pb2.FieldMask(paths=["amount_micros"]))
 
     response = budget_service.mutate_campaign_budgets(customer_id=CID, operations=[operation])
     return {"success": True, "resource": response.results[0].resource_name,
@@ -86,7 +86,9 @@ def execute_negative_keyword(client, proposal, dry_run=True):
     criterion.negative = True
     criterion.keyword.text = params["term"]
     match_type = params.get("match_type", "EXACT")
-    criterion.keyword.match_type = client.enums.KeywordMatchTypeEnum[match_type]
+    mt_enum = client.enums.KeywordMatchTypeEnum
+    mt_map = {"EXACT": mt_enum.EXACT, "PHRASE": mt_enum.PHRASE, "BROAD": mt_enum.BROAD}
+    criterion.keyword.match_type = mt_map.get(match_type, mt_enum.EXACT)
 
     response = service.mutate_campaign_criteria(customer_id=CID, operations=[operation])
     return {"success": True, "resource": response.results[0].resource_name}
@@ -103,7 +105,9 @@ def execute_add_keyword(client, proposal, dry_run=True):
     criterion = operation.create
     criterion.ad_group = f"customers/{CID}/adGroups/{params['ad_group_id']}"
     criterion.keyword.text = params["term"]
-    criterion.keyword.match_type = client.enums.KeywordMatchTypeEnum[params.get("match_type", "PHRASE")]
+    mt_enum = client.enums.KeywordMatchTypeEnum
+    mt_map = {"EXACT": mt_enum.EXACT, "PHRASE": mt_enum.PHRASE, "BROAD": mt_enum.BROAD}
+    criterion.keyword.match_type = mt_map.get(params.get("match_type", "PHRASE"), mt_enum.PHRASE)
 
     response = service.mutate_ad_group_criteria(customer_id=CID, operations=[operation])
     return {"success": True, "resource": response.results[0].resource_name}
