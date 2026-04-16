@@ -155,32 +155,69 @@ IF best hours (10am-1pm, 3-5pm PT) consistently outperform for 3+ weeks:
   -> Set bid modifier +15%
 ```
 
-## Step 5: Generate Recommendations (Need Confirmation)
+## Step 5: Monitor Previous Outcomes (Closed-Loop)
 
-These go into the report but are NOT auto-executed. Present them ranked by priority.
+Check if any previously executed changes are being tracked:
 
-### Budget Changes
-- If impression share < 40% AND CPA below $45 target: RECOMMEND increase daily budget 15-20%
-- If campaign spending < 70% of weekly budget: flag underpacing
-- If campaign spending > 110% of weekly budget: RECOMMEND reduce budget
+```bash
+python3 /Users/judebrown/Documents/Claude/GoogleAdsManager/scripts/monitor_outcomes.py \
+  --data <this_week_json> \
+  --outcomes /Users/judebrown/Documents/Claude/GoogleAdsManager/outputs/outcomes/outcomes-registry.json \
+  --proposals <this_week_proposals_json>
+```
 
-### Bid / Keyword Changes
-- If keyword CPA > 2x account average for 4+ weeks: RECOMMEND reduce bid or pause
-- If search term has 2+ conversions and is NOT an existing keyword: RECOMMEND add as phrase match
-- If Quality Score dropped below 5: flag with specific component (ad relevance, landing page, expected CTR)
+For each active outcome:
+- Compares current metrics to baseline (snapshot from when the change was made)
+- Appends a weekly checkpoint with trend assessment (trending_positive/negative/inconclusive)
+- If evaluation window has passed, renders final verdict (positive/neutral/negative)
+- If verdict is **negative**, auto-generates a revert proposal in this week's proposals
 
-### Ad Copy
-- If any RSA CTR < 4% for 4+ weeks: RECOMMEND new RSA variant
-- If a top converting search term is not in any headline: RECOMMEND adding it
-- Generate 3-5 headline suggestions using SRED.ca brand voice (provocative, flat-fee positioning)
+## Step 6: Run Optimization Engine (Closed-Loop)
 
-### Strategic (Report Only)
-- Landing page quality issues (needs web work, not ads work)
-- Conversion tracking recommendations (e.g., remove `au_visited_2_pages`)
-- Impression share opportunity sizing
-- Competitor campaign expansion opportunities
+Evaluates best-practices rules against this week's data and generates proposals:
 
-## Step 6: Update Strategy Document
+```bash
+/Users/judebrown/.local/share/uv/tools/google-ads-mcp/bin/python3.12 \
+  /Users/judebrown/Documents/Claude/GoogleAdsManager/scripts/optimization_engine.py \
+  --data <this_week_json> \
+  --output /Users/judebrown/Documents/Claude/GoogleAdsManager/outputs/proposals/proposals-YYYY-MM-DD.json
+```
+
+Generates max 5 proposals per week, ranked by priority. Categories:
+- **budget** — increase/decrease daily budgets
+- **bids** — raise/lower keyword or ad group bids
+- **keywords** — add converting search terms as keywords
+- **schedule** — overnight/weekend bid modifiers
+- **ad_copy** — new RSA variants for underperformers
+- **contractor_brief** — landing page, conversion tracking, speed work
+
+Also generates contractor brief specs for non-API work. Run:
+
+```bash
+python3 /Users/judebrown/Documents/Claude/GoogleAdsManager/scripts/contractor_brief.py \
+  --proposals <proposals_json>
+```
+
+## Step 7: Process Pending Approvals (Closed-Loop)
+
+Check prior week's proposals for approved items and execute:
+
+```bash
+/Users/judebrown/.local/share/uv/tools/google-ads-mcp/bin/python3.12 \
+  /Users/judebrown/Documents/Claude/GoogleAdsManager/scripts/execute_mutations.py \
+  --proposals <prior_week_proposals_json> --execute
+```
+
+**Approval methods (check in order):**
+1. Email reply from Jude — parse "Approve 1, 3" or "Approve all" from Gmail
+2. Chat command — "approve proposal P-2026-04-13-001"
+3. Direct JSON edit — status changed to "approved" in proposals file
+
+**Safety:** Dry-run by default. Budget cap $150/day. Max 10 mutations per run. All before/after values logged to `outputs/mutation-log.json`. Outcome records created for every mutation.
+
+Proposals pending 2+ weeks without action are auto-expired.
+
+## Step 8: Update Strategy Document
 
 Edit `references/google-ads-strategy.md`:
 
@@ -188,7 +225,7 @@ Edit `references/google-ads-strategy.md`:
 2. Append new observations to **Patterns and Insights** section (only genuinely new patterns)
 3. Move any completed recommendations to **Completed Actions** table
 
-## Step 7: Generate PDF Report (Component 2)
+## Step 9: Generate PDF Report (Component 2)
 
 Run the report generator:
 
@@ -210,7 +247,7 @@ The report includes:
 8. **Conversion Quality Audit** — action breakdown, True CPA calculation
 9. **Actions and Recommendations** — automated actions taken + pending recommendations
 
-## Step 8: Deliver via Gmail
+## Step 10: Deliver via Gmail
 
 Create a Gmail draft and send to Jude:
 
@@ -243,7 +280,7 @@ Full report attached.
 
 **Delivery method:** Create Gmail draft using `create_draft` tool, then use Chrome automation to open and send.
 
-## Step 9: Log and Confirm
+## Step 11: Log and Confirm
 
 ### Update action-log.md
 

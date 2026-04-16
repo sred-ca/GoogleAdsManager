@@ -1,0 +1,227 @@
+# SRED.ca Google Ads — Best Practices Rule Engine
+# Evaluated weekly by optimization_engine.py against account data.
+# Each rule generates either a proposal (API change) or a contractor brief.
+
+targets:
+  cpa_target_cad: 45.00
+  ctr_target: 0.08
+  cpc_target_cad: 10.00
+  impression_share_target: 0.50
+  quality_score_target: 7
+  max_daily_budget_cad: 150.00
+  max_proposals_per_week: 5
+
+rules:
+  - id: BP-001
+    name: Raise CPC on winning keywords
+    category: bids
+    condition:
+      scope: keyword
+      filters:
+        - field: cpa
+          operator: lt
+          value_ref: targets.cpa_target_cad
+        - field: conversions
+          operator: gte
+          value: 3
+        - field: spend
+          operator: gte
+          value: 50
+    action: propose_bid_increase
+    params:
+      increase_pct: 0.12
+      max_cpc_cad: 25.00
+    risk: LOW
+    frequency: weekly
+    description: "Keyword converting below target CPA with meaningful volume — increase bid to capture more traffic"
+
+  - id: BP-002
+    name: Lower CPC on expensive keywords
+    category: bids
+    condition:
+      scope: keyword
+      filters:
+        - field: cpa
+          operator: gt
+          value_ref: targets.cpa_target_cad
+          multiplier: 1.3
+        - field: spend
+          operator: gte
+          value: 30
+        - field: clicks
+          operator: gte
+          value: 5
+      pattern_weeks: 2
+    action: propose_bid_decrease
+    params:
+      decrease_pct: 0.18
+      min_cpc_cad: 3.00
+    risk: LOW
+    frequency: weekly
+    description: "Keyword CPA exceeds target by 30%+ for 2+ weeks — reduce bid"
+
+  - id: BP-003
+    name: Increase budget on constrained campaigns
+    category: budget
+    condition:
+      scope: campaign
+      filters:
+        - field: budget_lost_is
+          operator: gt
+          value: 0.20
+        - field: cpa
+          operator: lt
+          value_ref: targets.cpa_target_cad
+    action: propose_budget_increase
+    params:
+      increase_pct: 0.20
+      max_daily_cad_ref: targets.max_daily_budget_cad
+    risk: MEDIUM
+    frequency: weekly
+    description: "Campaign losing 20%+ impressions to budget while CPA is below target"
+
+  - id: BP-004
+    name: Flag low Quality Score keywords for landing page work
+    category: quality_score
+    condition:
+      scope: keyword
+      filters:
+        - field: quality_score
+          operator: lt
+          value: 5
+        - field: impressions
+          operator: gte
+          value: 50
+        - field: spend
+          operator: gte
+          value: 30
+    action: generate_contractor_brief
+    params:
+      brief_type: landing_page
+      title: "Landing Page Optimization for Low Quality Score Keywords"
+    risk: LOW
+    frequency: monthly
+    description: "Keywords with QS below 5 and meaningful spend need landing page improvements"
+
+  - id: BP-005
+    name: Add high-converting search terms as keywords
+    category: keywords
+    condition:
+      scope: search_term
+      filters:
+        - field: conversions
+          operator: gte
+          value: 2
+        - field: not_in_keywords
+          operator: eq
+          value: true
+    action: propose_add_keyword
+    params:
+      match_type: PHRASE
+    risk: LOW
+    frequency: weekly
+    description: "Search term converting well but not in keyword list — add to capture at better bids"
+
+  - id: BP-006
+    name: Block waste search terms
+    category: negatives
+    condition:
+      scope: search_term
+      filters:
+        - field: clicks
+          operator: gte
+          value: 3
+        - field: conversions
+          operator: eq
+          value: 0
+        - field: spend
+          operator: gte
+          value: 20
+        - field: not_in_negatives
+          operator: eq
+          value: true
+    action: auto_add_negative
+    params:
+      match_type: EXACT
+    risk: LOW
+    frequency: weekly
+    description: "Search term with spend but zero conversions — add as negative keyword"
+
+  - id: BP-007
+    name: RSA ad copy refresh
+    category: ad_copy
+    condition:
+      scope: ad
+      filters:
+        - field: ctr
+          operator: lt
+          value: 0.04
+        - field: impressions
+          operator: gte
+          value: 300
+    action: propose_ad_refresh
+    params:
+      min_headlines: 5
+      min_descriptions: 3
+    risk: MEDIUM
+    frequency: monthly
+    description: "RSA with CTR below 4% and significant impressions — propose new variant"
+
+  - id: BP-008
+    name: Reduce overnight bids
+    category: schedule
+    condition:
+      scope: hourly
+      filters:
+        - field: overnight_cpa_ratio
+          operator: gt
+          value: 2.0
+        - field: overnight_spend
+          operator: gt
+          value: 10
+      pattern_weeks: 2
+    action: propose_schedule_adjustment
+    params:
+      hours: [23, 0, 1, 2, 3, 4, 5]
+      bid_modifier: -0.80
+    risk: LOW
+    frequency: weekly
+    description: "Overnight CPA more than 2x daytime for 2+ weeks — reduce bids 80%"
+
+  - id: BP-009
+    name: Reduce weekend bids
+    category: schedule
+    condition:
+      scope: daily
+      filters:
+        - field: weekend_cpa_ratio
+          operator: gt
+          value: 1.5
+        - field: weekend_spend
+          operator: gt
+          value: 20
+      pattern_weeks: 3
+    action: propose_schedule_adjustment
+    params:
+      days: [SATURDAY, SUNDAY]
+      bid_modifier: -0.30
+    risk: LOW
+    frequency: weekly
+    description: "Weekend CPA 50%+ higher than weekday for 3+ weeks — reduce bids 30%"
+
+  - id: BP-010
+    name: Conversion tracking audit
+    category: conversion_tracking
+    condition:
+      scope: conversion_actions
+      filters:
+        - field: low_quality_pct
+          operator: gt
+          value: 0.50
+    action: generate_contractor_brief
+    params:
+      brief_type: conversion_tracking
+      title: "Fix Conversion Tracking - Remove Low-Quality Actions"
+    risk: LOW
+    frequency: monthly
+    description: "More than 50% of conversions are low-quality engagement signals — needs GA4 fix"
