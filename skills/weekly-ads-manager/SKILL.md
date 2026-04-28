@@ -23,16 +23,16 @@ One plugin, three components: **Data Pull** -> **Analysis + Actions** -> **Repor
 - **Currency:** CAD | **Timezone:** America/Vancouver
 - **Python (data pull):** `/Users/judebrown/.local/share/uv/tools/google-ads-mcp/bin/python3.12`
 - **Python (PDF):** `/usr/bin/python3`
-- **Project root:** `/Users/judebrown/Documents/Claude/GoogleAdsManager`
+- **Project root:** `/Users/judebrown/Documents/Claude/google-ads-manager`
 
 ## Step 1: Read Context
 
 Read these files before doing anything:
 
-- `GoogleAdsManager/references/google-ads-strategy.md` — current strategy, known issues, account structure
-- `GoogleAdsManager/references/industry-benchmarks.md` — B2B benchmarks and interpretation guide
-- `GoogleAdsManager/action-log.md` — last 10 entries (what was done recently)
-- Most recent `GoogleAdsManager/outputs/weekly-data/week-of-*.json` — prior week for comparison
+- `google-ads-manager/references/google-ads-strategy.md` — current strategy, known issues, account structure
+- `google-ads-manager/references/industry-benchmarks.md` — B2B benchmarks and interpretation guide
+- `google-ads-manager/action-log.md` — last 10 entries (what was done recently)
+- Most recent `google-ads-manager/outputs/weekly-data/week-of-*.json` — prior week for comparison
 
 ## Step 2: Pull Data (Component 1)
 
@@ -40,7 +40,7 @@ Run the data pull script:
 
 ```bash
 /Users/judebrown/.local/share/uv/tools/google-ads-mcp/bin/python3.12 \
-  /Users/judebrown/Documents/Claude/GoogleAdsManager/scripts/pull_weekly_data.py
+  /Users/judebrown/Documents/Claude/google-ads-manager/scripts/pull_weekly_data.py
 ```
 
 This executes 11 GAQL queries and outputs a JSON file to `outputs/weekly-data/week-of-YYYY-MM-DD.json`.
@@ -160,9 +160,9 @@ IF best hours (10am-1pm, 3-5pm PT) consistently outperform for 3+ weeks:
 Check if any previously executed changes are being tracked:
 
 ```bash
-python3 /Users/judebrown/Documents/Claude/GoogleAdsManager/scripts/monitor_outcomes.py \
+python3 /Users/judebrown/Documents/Claude/google-ads-manager/scripts/monitor_outcomes.py \
   --data <this_week_json> \
-  --outcomes /Users/judebrown/Documents/Claude/GoogleAdsManager/outputs/outcomes/outcomes-registry.json \
+  --outcomes /Users/judebrown/Documents/Claude/google-ads-manager/outputs/outcomes/outcomes-registry.json \
   --proposals <this_week_proposals_json>
 ```
 
@@ -178,9 +178,9 @@ Evaluates best-practices rules against this week's data and generates proposals:
 
 ```bash
 /Users/judebrown/.local/share/uv/tools/google-ads-mcp/bin/python3.12 \
-  /Users/judebrown/Documents/Claude/GoogleAdsManager/scripts/optimization_engine.py \
+  /Users/judebrown/Documents/Claude/google-ads-manager/scripts/optimization_engine.py \
   --data <this_week_json> \
-  --output /Users/judebrown/Documents/Claude/GoogleAdsManager/outputs/proposals/proposals-YYYY-MM-DD.json
+  --output /Users/judebrown/Documents/Claude/google-ads-manager/outputs/proposals/proposals-YYYY-MM-DD.json
 ```
 
 Generates max 5 proposals per week, ranked by priority. Categories:
@@ -194,7 +194,7 @@ Generates max 5 proposals per week, ranked by priority. Categories:
 Also generates contractor brief specs for non-API work. Run:
 
 ```bash
-python3 /Users/judebrown/Documents/Claude/GoogleAdsManager/scripts/contractor_brief.py \
+python3 /Users/judebrown/Documents/Claude/google-ads-manager/scripts/contractor_brief.py \
   --proposals <proposals_json>
 ```
 
@@ -204,7 +204,7 @@ Check prior week's proposals for approved items and execute:
 
 ```bash
 /Users/judebrown/.local/share/uv/tools/google-ads-mcp/bin/python3.12 \
-  /Users/judebrown/Documents/Claude/GoogleAdsManager/scripts/execute_mutations.py \
+  /Users/judebrown/Documents/Claude/google-ads-manager/scripts/execute_mutations.py \
   --proposals <prior_week_proposals_json> --execute
 ```
 
@@ -274,7 +274,7 @@ Refresh the fiscal year performance data (monthly totals for May–Apr). Run onc
 
 ```bash
 /Users/judebrown/.local/share/uv/tools/google-ads-mcp/bin/python3.12 \
-  /Users/judebrown/Documents/Claude/GoogleAdsManager/scripts/pull_annual_data.py --fy 2026
+  /Users/judebrown/Documents/Claude/google-ads-manager/scripts/pull_annual_data.py --fy 2026
 ```
 
 Outputs to `outputs/annual-data-FY2026.json`. When the fiscal year turns over (May 1), change `--fy` to `2027`.
@@ -284,12 +284,12 @@ Outputs to `outputs/annual-data-FY2026.json`. When the fiscal year turns over (M
 Run the report generator:
 
 ```bash
-python3 /Users/judebrown/Documents/Claude/GoogleAdsManager/scripts/generate_ads_report.py \
-  --data /Users/judebrown/Documents/Claude/GoogleAdsManager/outputs/weekly-data/week-of-YYYY-MM-DD.json \
-  --prior /Users/judebrown/Documents/Claude/GoogleAdsManager/outputs/weekly-data/week-of-PRIOR-DATE.json \
-  --output /Users/judebrown/Documents/Claude/GoogleAdsManager/outputs/reports/google-ads-report-YYYY-MM-DD.pdf \
-  --leads /Users/judebrown/Documents/Claude/GoogleAdsManager/outputs/leads-pipeline.json \
-  --annual /Users/judebrown/Documents/Claude/GoogleAdsManager/outputs/annual-data-FY2026.json
+python3 /Users/judebrown/Documents/Claude/google-ads-manager/scripts/generate_ads_report.py \
+  --data /Users/judebrown/Documents/Claude/google-ads-manager/outputs/weekly-data/week-of-YYYY-MM-DD.json \
+  --prior /Users/judebrown/Documents/Claude/google-ads-manager/outputs/weekly-data/week-of-PRIOR-DATE.json \
+  --output /Users/judebrown/Documents/Claude/google-ads-manager/outputs/reports/google-ads-report-YYYY-MM-DD.pdf \
+  --leads /Users/judebrown/Documents/Claude/google-ads-manager/outputs/leads-pipeline.json \
+  --annual /Users/judebrown/Documents/Claude/google-ads-manager/outputs/annual-data-FY2026.json
 ```
 
 The report includes:
@@ -403,12 +403,12 @@ Strategy doc: Updated
 
 ## Reference Files
 
-- `GoogleAdsManager/CLAUDE.md` — project overview and architecture
-- `GoogleAdsManager/references/google-ads-strategy.md` — living strategy doc
-- `GoogleAdsManager/references/industry-benchmarks.md` — B2B benchmarks (WordStream 2025)
-- `GoogleAdsManager/references/gaql-cheatsheet.md` — GAQL query reference
-- `GoogleAdsManager/references/api-reference.md` — Google Ads API patterns
-- `GoogleAdsManager/references/error-codes.md` — common errors and fixes
-- `GoogleAdsManager/action-log.md` — append-only change log
-- `GoogleAdsManager/outputs/weekly-data/` — weekly JSON snapshots
-- `GoogleAdsManager/outputs/reports/` — weekly PDF reports
+- `google-ads-manager/CLAUDE.md` — project overview and architecture
+- `google-ads-manager/references/google-ads-strategy.md` — living strategy doc
+- `google-ads-manager/references/industry-benchmarks.md` — B2B benchmarks (WordStream 2025)
+- `google-ads-manager/references/gaql-cheatsheet.md` — GAQL query reference
+- `google-ads-manager/references/api-reference.md` — Google Ads API patterns
+- `google-ads-manager/references/error-codes.md` — common errors and fixes
+- `google-ads-manager/action-log.md` — append-only change log
+- `google-ads-manager/outputs/weekly-data/` — weekly JSON snapshots
+- `google-ads-manager/outputs/reports/` — weekly PDF reports
