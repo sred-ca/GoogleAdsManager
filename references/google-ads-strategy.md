@@ -13,22 +13,25 @@ Living document updated weekly by the Google Ads Manager plugin.
 ## Current Performance Snapshot
 
 ```yaml
-as_of: 2026-04-16
-data_window: week of 2026-04-06 to 2026-04-12
-weekly_spend_cad: 522.60
-weekly_clicks: 56
-weekly_impressions: 687
-weekly_conversions: 12.0
-weekly_true_conversions: 0
-weekly_ctr: 0.0815
-weekly_avg_cpc_cad: 9.33
-weekly_cpa_cad: 43.55
-weekly_true_cpa: null
-impression_share: 0.234
-budget_lost_is: 0.724
-wow_spend_change: -0.058
-wow_cpa_change: +0.414
+as_of: 2026-04-20
+data_window: week of 2026-04-13 to 2026-04-19
+weekly_spend_cad: 467.46
+weekly_clicks: 48
+weekly_impressions: 577
+weekly_conversions: 8.0
+weekly_true_conversions: 3
+weekly_true_conversion_action: thankyou_page_view
+weekly_ctr: 0.0832
+weekly_avg_cpc_cad: 9.74
+weekly_cpa_cad: 58.43
+weekly_true_cpa: 155.82
+impression_share: 0.261
+budget_lost_is: 0.426
+rank_lost_is: 0.313
+wow_spend_change: -0.105
+wow_cpa_change: +0.342
 wow_conversions_change: -0.333
+wow_true_conversions_change: +inf
 ```
 
 ## Campaign Architecture
@@ -75,13 +78,20 @@ SRED.ca targets Canadian tech companies (5-100 employees) with active R&D. Googl
 Account has been running since April 2022. Significant spend ramp in Sep-Oct 2025 ($7.7K and $12.2K — investigate). CTR doubled from ~5% (2024) to ~8.5% (2026) — ad copy improvements working. Provocative headlines ("Buying Your Consultant a Boat?", "Stop Overpaying") outperform generic copy on both CTR and CPA. "sr&ed consultant" is the money keyword: $21.5K lifetime, 587 conversions, best CPA. Competitor targeting (infinity sred) is the most efficient strategy but barely funded.
 
 **[2026-04-16] Week of Apr 6-12 Review:**
-Zero real leads this week — all 12 "conversions" are just 2-page visits (au_visited_2_pages). CPA spiked 41% WoW ($30.81 -> $43.55). Impression share dropped to 23.4% (72.4% lost to budget). CTR remains strong at 8.2% (above 8% target). "sred credits" identified as waste term ($25.55, 0 conv) and added as exact match negative. Biggest concern: conversion tracking is fundamentally broken — Google is optimizing toward page visits, not actual leads.
+Zero real leads this week — all 12 "conversions" are just 2-page visits (au_visited_2_pages). CPA spiked 41% WoW ($30.81 -> $43.55). Impression share dropped to 23.4% (72.4% lost to budget). CTR remains strong at 8.2% (above 8% target). "sred credits" identified as waste term ($25.55, 0 conv) and added as exact match negative. Biggest concern: conversion tracking is fundamentally broken — Google is optimizing toward page visits, not actual leads. Budget increased to $90/day. Jude demoted au_visited_2_pages to Secondary conversion action.
+
+**[2026-04-20] Week of Apr 13-19 Review:**
+BREAKTHROUGH: 3 real leads (thankyou_page_view form submissions) — first week of real lead data after conversion tracking fix. Reported CPA $58.43 (8 conversions including 5 page visits still counting); True CPA $155.82 (3 actual leads/$467.46). Budget increase impact visible: budget lost IS dropped 72.4% → 42.6% — major improvement. However, rank lost IS jumped 4.3% → 31.3% — Quality Score drag is now the primary constraint. CTR maintained at 8.3% (above 8% target). Two waste terms identified and negated: "sr&ed tax credits" ($29.68, 0 conv) and "sr&ed specialist" ($32.68, 0 conv). Note: Apr 16 shows $0 spend (paused for conversion tracking change). Weekend CPA 2.4x weekday — schedule optimization warranted but needs 2-week pattern confirmation.
 
 ## Completed Actions
 
 | Date | Action | Rationale | Result |
 |------|--------|-----------|--------|
-| 2026-04-16 | Added "sred credits" as exact negative to Bloom RSA 1 | $25.55 spent, 0 conversions, informational query | Pending — will measure next week |
+| 2026-04-16 | Added "sred credits" as exact negative to Bloom RSA 1 | $25.55 spent, 0 conversions, informational query | Reduced to $5.97 week after (residual) — working |
+| 2026-04-16 | Demoted au_visited_2_pages to Secondary conversion action | 100% of prior week conversions were page visits, not leads | 3 real leads (thankyou_page_view) visible the following week |
+| 2026-04-16 | Increased Bloom RSA 1 budget $75 → $90/day | Budget lost IS was 72.4%; CPA below $45 target | Budget lost IS dropped 72.4% → 42.6% the following week |
+| 2026-04-20 | Added "sr&ed tax credits" as EXACT negative to Bloom RSA 1 | $29.68 spent, 0 conversions, informational query | Pending — will measure next week |
+| 2026-04-20 | Added "sr&ed specialist" as EXACT negative to Bloom RSA 1 | $32.68 spent, 0 conversions, high CPC waste | Pending — will measure next week |
 
 ## Quarterly Strategy Review Notes
 

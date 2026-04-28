@@ -217,7 +217,50 @@ Check prior week's proposals for approved items and execute:
 
 Proposals pending 2+ weeks without action are auto-expired.
 
-## Step 8: Update Strategy Document
+## Step 8: Lead Quality Audit
+
+Before generating the report, verify that conversion events represent real leads — not spam form submissions from people trying to sell SRED.ca something.
+
+**How to run:**
+
+1. Search Gmail for HubSpot form notifications from the week:
+   ```
+   query: "subject:\"You've got a new submission on the HubSpot Form\" after:YYYY/MM/DD before:YYYY/MM/DD"
+   ```
+2. Use `get_thread` to retrieve the full body of each notification.
+3. Classify each submission:
+
+**SPAM signals (disqualify):**
+- Message reads as a sales pitch (offering a service TO SRED.ca rather than asking for SR&ED help)
+- Signed off with a sales title ("Sales Executive", "Business Development", "Account Manager")
+- Includes "Reply STOP to opt out" or similar unsubscribe language
+- Domain is a generic services company with no R&D relevance
+- Message is about SEO, Wikipedia, social media, web design, recruiting, insurance, software sales, etc.
+
+**REAL LEAD signals (count):**
+- Mentions SR&ED, R&D, tax credits, CRA, eligibility, claims, funding
+- Asks about fees, process, or how SRED.ca works
+- Mentions their company's technical work or product development
+- Has a Canadian company with a plausible R&D context
+
+**Output a lead quality table:**
+
+```
+| Name | Company | Source | Verdict | Reason |
+|------|---------|--------|---------|--------|
+| ... | ...     | ...    | REAL / SPAM | one-line reason |
+```
+
+**Corrected metrics to use in the report:**
+- `real_leads_total` = total form submissions minus spam
+- `real_leads_paid` = real leads attributed to Google Ads (HubSpot source = PAID_SEARCH with campaign matching "bloom rsa 1" or "competitor")
+- `real_leads_organic` = real leads from organic/direct sources
+- `spam_count` = number of spam submissions (report separately so Jude knows the form is getting hit)
+- `true_cpa_paid` = this week's total spend ÷ `real_leads_paid` (report alongside Google's reported CPA)
+
+Note: A lead flagged as SPAM still fired `thankyou_page_view` — so Google Ads may count it as a conversion. Note the discrepancy in the report if a spam submission is attributed to PAID_SEARCH. Do NOT adjust Google's reported conversion numbers — just annotate them.
+
+## Step 10: Update Strategy Document
 
 Edit `references/google-ads-strategy.md`:
 
@@ -225,7 +268,18 @@ Edit `references/google-ads-strategy.md`:
 2. Append new observations to **Patterns and Insights** section (only genuinely new patterns)
 3. Move any completed recommendations to **Completed Actions** table
 
-## Step 9: Generate PDF Report (Component 2)
+## Step 10b: Refresh Annual Data
+
+Refresh the fiscal year performance data (monthly totals for May–Apr). Run once per week — takes ~10 seconds:
+
+```bash
+/Users/judebrown/.local/share/uv/tools/google-ads-mcp/bin/python3.12 \
+  /Users/judebrown/Documents/Claude/GoogleAdsManager/scripts/pull_annual_data.py --fy 2026
+```
+
+Outputs to `outputs/annual-data-FY2026.json`. When the fiscal year turns over (May 1), change `--fy` to `2027`.
+
+## Step 11: Generate PDF Report (Component 2)
 
 Run the report generator:
 
@@ -233,7 +287,9 @@ Run the report generator:
 python3 /Users/judebrown/Documents/Claude/GoogleAdsManager/scripts/generate_ads_report.py \
   --data /Users/judebrown/Documents/Claude/GoogleAdsManager/outputs/weekly-data/week-of-YYYY-MM-DD.json \
   --prior /Users/judebrown/Documents/Claude/GoogleAdsManager/outputs/weekly-data/week-of-PRIOR-DATE.json \
-  --output /Users/judebrown/Documents/Claude/GoogleAdsManager/outputs/reports/google-ads-report-YYYY-MM-DD.pdf
+  --output /Users/judebrown/Documents/Claude/GoogleAdsManager/outputs/reports/google-ads-report-YYYY-MM-DD.pdf \
+  --leads /Users/judebrown/Documents/Claude/GoogleAdsManager/outputs/leads-pipeline.json \
+  --annual /Users/judebrown/Documents/Claude/GoogleAdsManager/outputs/annual-data-FY2026.json
 ```
 
 The report includes:
@@ -247,7 +303,7 @@ The report includes:
 8. **Conversion Quality Audit** — action breakdown, True CPA calculation
 9. **Actions and Recommendations** — automated actions taken + pending recommendations
 
-## Step 10: Deliver via Gmail
+## Step 12: Deliver via Gmail
 
 Create a Gmail draft and send to Jude:
 
@@ -262,8 +318,13 @@ Here's your Google Ads weekly report.
 
 Quick summary:
 - Spend: $[X] ([+/-X%] vs last week)
-- Clicks: [X] | Conversions: [X] | CPA: $[X]
+- Clicks: [X] | Google reported conversions: [X] | Reported CPA: $[X]
 - vs B2B benchmark: CTR [above/below], CPA [above/below], Imp Share [X%]
+
+Lead quality (verified via HubSpot form submissions):
+- Real leads this week: [X] ([X] from paid ads, [X] organic/direct)
+- Spam submissions: [X] [list names/companies if any]
+- True CPA (paid leads only): $[X]
 
 Actions taken this week:
 [list any auto-executed negatives or schedule changes, or "None"]
@@ -280,7 +341,7 @@ Full report attached.
 
 **Delivery method:** Create Gmail draft using `create_draft` tool, then use Chrome automation to open and send.
 
-## Step 11: Log and Confirm
+## Step 13: Log and Confirm
 
 ### Update action-log.md
 
@@ -294,6 +355,7 @@ Prepend a new entry at the top:
 **Report:** outputs/reports/google-ads-report-YYYY-MM-DD.pdf
 
 **Key Metrics:** $[spend] spend | [clicks] clicks | [conversions] conv | $[CPA] CPA | [IS]% imp share
+**Lead Quality:** [X] real leads ([X] paid, [X] organic/direct) | [X] spam | True CPA (paid): $[X]
 **vs Prior Week:** spend [+/-X%] | clicks [+/-X%] | CPA [+/-X%]
 **vs Benchmark:** CTR [above/below] | CPA [above/below] | Imp Share [above/below]
 
@@ -320,6 +382,7 @@ Key metrics:
   Clicks: X | Conv: X | CPA: $X
   Impression Share: X% (target: 50%)
   True CPA (excl. page visits): $X
+  Real leads: X total (X paid, X organic) | Spam: X
 
 Actions taken: [count] negative keywords added, [schedule changes or "no schedule changes"]
 Recommendations: [count] pending your approval (see report)

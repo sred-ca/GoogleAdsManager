@@ -1,6 +1,12 @@
 .env
+credentials.json
 *.credentials
 *.token
+*.secret
 __pycache__/
 *.pyc
 .DS_Store
+outputs/
+*.pdf
+Google Ads Weekly Report
+Test
